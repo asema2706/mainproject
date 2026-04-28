@@ -1,0 +1,38 @@
+
+class kruzhka{
+  String tea;
+  double volume;
+  double nowVolume;
+
+  kruzhka(this.tea, this.volume) : nowVolume = volume;
+
+  void drink(double amount){
+    if (nowVolume - amount >= 0){
+      nowVolume -= amount;
+      print('вы выпили $amount мл от $tea. осталось $nowVolume мл.');
+    } else {
+      print('Недостаточно чая для выпивания $amount мл. осталось $nowVolume мл.');
+    }
+  }
+}
+
+class human{
+  String name;
+  int age;
+
+  human(this.name, this.age);
+
+  void drinkTea(kruzhka cup, double amount){
+    print('$name пытается выпить $amount мл от ${cup.tea}.');
+    cup.drink(amount);
+  }
+}
+
+void main() {
+  kruzhka myCup = kruzhka('Чай', 250);
+  human person = human('Асема', 30);
+
+  person.drinkTea(myCup, 50);
+  person.drinkTea(myCup, 100);
+  person.drinkTea(myCup, 150);
+}
