@@ -1,0 +1,63 @@
+from PIL import Image
+from multiprocessing import Pool
+import time
+import os
+
+def process_image(paths):
+    input_path, output_path = paths
+
+    image = Image.open(input_path)
+
+    start = time.time()
+
+    image = image.rotate(-90, expand=True)
+    image = image.resize((800, 600), Image.LANCZOS)
+    image = image.convert("L")
+
+    end = time.time()
+
+    image.save(output_path)
+
+    return end - start
+
+if __name__ == "__main__":
+    os.makedirs("input", exist_ok=True)
+    os.makedirs("processed", exist_ok=True)
+
+    files = [f for f in os.listdir("input") if f.endswith(".jpg")]
+
+    if len(files) == 0:
+        for i in range(5):
+            image = Image.new("RGB", (1000, 1000), (i * 40, i * 50, i * 60))
+            image.save(f"input/img_{i}.jpg")
+
+    for file in os.listdir("processed"):
+        os.remove(os.path.join("processed", file))
+
+    files = [f for f in os.listdir("input") if f.endswith(".jpg")]
+
+    tasks = []
+
+    for file in files:
+        input_path = os.path.join("input", file)
+        output_path = os.path.join("processed", "out_" + file)
+        tasks.append((input_path, output_path))
+
+    start = time.time()
+
+    total_processing_time = 0
+
+    for task in tasks:
+        total_processing_time += process_image(task)
+
+    end = time.time()
+
+    print("Последовательный режим:", total_processing_time)
+
+    for file in os.listdir("processed"):
+        os.remove(os.path.join("processed", file))
+
+    with Pool() as pool:
+        results = pool.map(process_image, tasks)
+
+    print("Параллельный режим:", sum(results))
